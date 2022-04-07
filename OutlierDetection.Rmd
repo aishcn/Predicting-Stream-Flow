@@ -1,0 +1,82 @@
+---
+title: "Outlier Detection"
+author: "Kelvin Li"
+date: "2022/3/19"
+output: 
+  pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, message=FALSE}
+# DATA PREP ---------------------
+Sys.setenv(LANG = "en")
+library(tidyverse)
+library(ggplot2)                     
+library(GGally)
+library(olsrr)
+library(gridExtra)
+library(cowplot)
+library(factoextra)
+library(caretEnsemble)
+library(caret)
+library(mlbench)
+library(Metrics)
+library(gtsummary)
+
+dt <- read_csv('data_stat450.csv')
+dt <- rename(dt, MEVA = 'Mean Evaporation (m_per_year)', 
+             MPEVA = 'Mean Potential Evaporation (m_per_year)', 
+             MSDEN = 'Mean Snow Density (kg3_per_m3)', 
+             MSDEP = "Mean Snow Depth (m)", 
+             MSDEPWEQ = "Mean Snow Depth, Snow Water Equiv (m_of_swe)", 
+             MSFAL = "Mean Snowfall (m_per_year)", 
+             MSMELT = "Mean Snowmelt (m_per_year)", 
+             MTEMP = "Mean Temperature (deg_C)", 
+             MPRECIP = "Mean Total Precip (m_per_year)", 
+             Q = "q_mean") |>
+  mutate(gridcode = as.factor(gridcode), 
+         year = as.integer(year),
+         MPEVA = MPEVA / 1000)
+
+grid <- read_csv('grid_codes.csv') |> 
+  select(gridcode, Longitude, Latitude) |>
+  mutate(gridcode = as.factor(gridcode))
+
+dt <- left_join(grid,dt)
+dt <- rename(dt, LONG = 'Longitude', LAT = 'Latitude')
+dt.small <- dt |> select(year, gridcode, MEVA,MPEVA,MSDEN,MSDEP, MSDEPWEQ, MSFAL,MSMELT,MTEMP,MPRECIP,Q)
+# ---------------------
+
+```
+
+
+## Outlier Detection
+
+```{r, fig.width=7,fig.height=5}
+# SCALED EXPLANATORY VARS ---------------------
+dt.valid <- na.omit(dt) |> mutate(gridcode = as.integer(gridcode))
+outlier.count <- c()
+outlier <- c()
+for (i in 5:13){
+qt <- quantile(dt.valid[,i],na.rm = TRUE)
+iqr <- qt[4]-qt[2]
+upper.bd <- qt[4]+iqr*1.5
+lower.bd <- qt[2]-iqr*1.5
+current.col.name = colnames(dt.valid[,i])
+rename.year = as.symbol(paste(current.col.name, "year",sep="."))
+rename.gridcode = as.symbol(paste(current.col.name, "gridcode",sep="."))
+abnormal <- filter(dt.valid, !!as.symbol(current.col.name) > upper.bd | !!as.symbol(current.col.name) < lower.bd) |>
+  select(!!rename.year:=year,
+         !!rename.gridcode:=gridcode)
+outlier.count <- append(outlier.count, dim(abnormal)[1])
+outlier <- append(outlier, abnormal)
+}
+outlier.count <- as.data.frame(t(outlier.count))
+colnames(outlier.count) <- colnames(dt.valid[,5:13])
+outlier.count
+outlier
+```
