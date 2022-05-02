@@ -1,4 +1,4 @@
-# STAT 450 Group Project
+# STAT 450 Project
 ## The Effects of Climate Variables on Average Stream Flow for Canadian Watersheds
 
 ***Contributors***: *Anjali Chauhan, Kelvin Li, Kohl Peterson, Vanessa Bayubaskoro*
@@ -83,10 +83,13 @@ climate variables alone, and different slopes for different gridcode’s may nee
 analysis in the future.
 
 ### 4. Methods
+[Please refer to: https://github.com/anjali-chauhan/Predicting-Stream-Flow/blob/main/Report-%20Stream%20Flow%20Prediction.pdf]
 
 ### 5. Model Results
+[Please refer to: https://github.com/anjali-chauhan/Predicting-Stream-Flow/blob/main/Report-%20Stream%20Flow%20Prediction.pdf]
 
 ### 6. Outlier Detection
+[Please refer to: https://github.com/anjali-chauhan/Predicting-Stream-Flow/blob/main/Report-%20Stream%20Flow%20Prediction.pdf]
 
 ### 7. Limitations
 
